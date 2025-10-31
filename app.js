@@ -20,7 +20,9 @@ require('dotenv').config();
 app.get('/',(req,res) => {
     res.render("organiser")
 })
-
+app.get('/workshop',(req,res)=>{
+    res.render('workshop')
+})
 app.listen(3000,()=>{
     console.log('running');
 });
