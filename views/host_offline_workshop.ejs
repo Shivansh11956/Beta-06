@@ -428,46 +428,56 @@ input[type="file"]#logo-upload {
     cursor: pointer;
     margin-right: 5px;
 }
+.skillbox{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.skills{
+    padding: 10px 10px;
+    border: 0.5px solid rgba(103, 99, 99, 0.542);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.selected{
+    border: 0.5px solid #2A81E0;
+    background-color: #88a7c961;
+
+}
+
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
     let skillsArr = [];
-    const addskillsbtn = document.getElementById("addskills");
-    const skillscon = document.querySelector(".skillscon");
+    const skillElements = document.querySelectorAll(".skills");
 
-    /* ------------------- ADD SKILL ------------------- */
-    addskillsbtn.addEventListener("click", () => {
-        let inputval = document.getElementById("skills").value.trim();
-        if (!inputval) return;
+    // ✅ SKILL CLICK HANDLER (INSIDE DOMContentLoaded)
+    skillElements.forEach(skill => {
+        skill.addEventListener("click", () => {
+            
+            skill.classList.toggle("selected");
+            const value = skill.textContent.trim();
 
-        skillsArr.push(inputval);
+            if (skill.classList.contains("selected")) {
+                // add to array
+                if (!skillsArr.includes(value)) {
+                    skillsArr.push(value);
+                }
+            } else {
+                // remove from array
+                skillsArr = skillsArr.filter(s => s !== value);
+            }
 
-        renderSkills();
-        document.getElementById("skills").value = "";
+            console.log(skillsArr);  // ✅ check selected skills live
+        });
     });
 
-    /* ------------------- REMOVE SKILL ------------------- */
-    skillscon.addEventListener("click", (e) => {
-        if (e.target.classList.contains("fa-xmark")) {
-            const skill = e.target.parentElement.dataset.skill;
-            skillsArr = skillsArr.filter((s) => s !== skill);
-            renderSkills();
-        }
-    });
+    
 
-    /* ------------------- RENDER SKILLS ------------------- */
-    function renderSkills() {
-        skillscon.innerHTML = skillsArr
-            .map(
-                (s) => `
-            <span data-skill="${s}">
-                ${s} <i class="fa-solid fa-xmark"></i>
-            </span>`
-            )
-            .join("");
-    }
-
+    
     /* ------------------- MODE TOGGLE ------------------- */
     const offlineSection = document.getElementById("offline-section");
     const modeToggles = document.querySelectorAll('input[name="mode"]');
@@ -476,9 +486,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const selected = document.querySelector('input[name="mode"]:checked').value;
         offlineSection.style.display = selected === "offline" ? "block" : "none";
     }
-
-    modeToggles.forEach((t) => t.addEventListener("change", handleModeChange));
+    modeToggles.forEach(t => t.addEventListener("change", handleModeChange));
     handleModeChange();
+
 
     /* ------------------- PARTICIPATION TYPE ------------------- */
     const teamSizeSection = document.getElementById("team-size-section");
@@ -488,11 +498,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const selected = document.querySelector('input[name="participation-type"]:checked').value;
         teamSizeSection.style.display = selected === "team" ? "grid" : "none";
     }
-
-    participationToggles.forEach((t) =>
-        t.addEventListener("change", handleParticipationChange)
-    );
+    participationToggles.forEach(t => t.addEventListener("change", handleParticipationChange));
     handleParticipationChange();
+
 
     /* ------------------- FORM SUBMIT ------------------- */
     const form = document.querySelector("form");
@@ -503,6 +511,21 @@ document.addEventListener("DOMContentLoaded", function () {
         const formData = new FormData(form); // For file + normal fields
 
         // Append skills array manually
+        formData.delete("orgName");
+        formData.delete("workshopTitle");
+        formData.delete("url");
+        formData.delete("opp-description");
+        formData.delete("venue");
+        formData.delete("location");
+        formData.delete("mode");
+        formData.delete("participation-type");
+        formData.delete("skills");
+        formData.delete('registrationDate')
+        formData.delete('commenceDate')
+        formData.delete('organiserName')
+        formData.delete('organiserDesignation')
+        formData.delete('organiserEmail')
+        formData.delete('organiserNumber')
         formData.append("skills", JSON.stringify(skillsArr));
 
         // Append custom values not inside form
@@ -510,7 +533,12 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.append("orgName", document.getElementById("org-name").value);
         formData.append("url", document.getElementById("company-url").value);
         formData.append("description", document.getElementById("opp-description").value);
-
+        formData.append('registrationDate',document.getElementById('regDate').value)
+        formData.append('commenceDate',document.getElementById('comDate').value)
+        formData.append('organiserName',document.getElementById('organName').value)
+        formData.append('organiserDesignation',document.getElementById('organDes').value)
+        formData.append('organiserEmail',document.getElementById('organEma').value)
+        formData.append('organiserNumber',document.getElementById('organNum').value)
         formData.append(
             "participationType",
             document.querySelector('input[name="participation-type"]:checked').value
@@ -527,17 +555,20 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.append("minSize", document.getElementById("team-min").value);
         formData.append("maxSize", document.getElementById("team-max").value);
 
-        // ✅ Send using Fetch POST
+        
         fetch("/host/workshop", {
-            method: "POST",
-            body: formData,
-        })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
-                alert("Workshop Published!");
-            })
-            .catch(err => console.error("Error:", err));
+    method: "POST",
+    body: formData,
+})
+.then(res => res.json())   // ✅ Works now because backend returns JSON
+.then(data => {
+    console.log(data);
+    alert("Workshop Published!");
+
+    // ✅ Redirect to success page
+    window.location.href = "/host/workshop/completed";
+})
+.catch(err => console.error("Error:", err));
     });
 
 });
@@ -549,6 +580,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <aside class="sidebar">
             <div class="logo">
                 <h3>EventUs</h3>
+                <p>Your Feed. Your Future</p>
             </div>
             
             <nav class="stepper">
@@ -561,9 +593,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
-                    <div class="step-label">
+                    <div class="step-label" style="color: grey;">
                         Step 2
-                        <span>Registration Form</span>
+                        <span style="color: grey;">Completed</span>
                     </div>
                 </div>
             </nav>
@@ -578,7 +610,7 @@ document.addEventListener("DOMContentLoaded", function () {
         </aside>
 
         <main class="main-content">
-            <form action="/host/workshop" method="post" enctype="multipart/form-data">
+            <form action="/host/workshop" method="POST" enctype="multipart/form-data">
                 
                 <section class="form-section">
                     <div class="logo-upload-group">
@@ -640,12 +672,62 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
 
                     <div class="form-group">
-                        <label for="skills">Skills to be utilised</label>
-                        <input name="skills" type="text" id="skills" placeholder="Example: Photoshop, MS Office, etc.">
-                        <button id="addskills" type="button">Add</button>
-                        <div class="skillscon">
-                            
+                        <label for="skill" style="margin-bottom: 15px;">
+                            Technologies Involved
+                        </label>
+                        <div class="skillbox">
+                            <!-- Interests -->
+<span class="skills">Artificial Intelligence</span>
+<span class="skills">Machine Learning</span>
+<span class="skills">Web Development</span>
+<span class="skills">Mobile Development</span>
+<span class="skills">Data Science</span>
+<span class="skills">Cybersecurity</span>
+<span class="skills">Blockchain</span>
+<span class="skills">Cloud Computing</span>
+<span class="skills">DevOps</span>
+<span class="skills">UI/UX Design</span>
+<span class="skills">Product Management</span>
+<span class="skills">Digital Marketing</span>
+<span class="skills">Entrepreneurship</span>
+<span class="skills">Startups</span>
+<span class="skills">Business Strategy</span>
+<span class="skills">Finance</span>
+<span class="skills">Sustainability</span>
+<span class="skills">Healthcare Tech</span>
+<span class="skills">EdTech</span>
+<span class="skills">Gaming</span>
+<span class="skills">AR/VR</span>
+<span class="skills">IoT</span>
+<span class="skills">Robotics</span>
+<span class="skills">Photography</span>
+<span class="skills">Writing</span>
+<!-- Skills -->
+<span class="skills">JavaScript</span>
+<span class="skills">Python</span>
+<span class="skills">Java</span>
+<span class="skills">React</span>
+<span class="skills">Node.js</span>
+<span class="skills">SQL</span>
+<span class="skills">MongoDB</span>
+<span class="skills">AWS</span>
+<span class="skills">Docker</span>
+<span class="skills">Git</span>
+<span class="skills">Figma</span>
+<span class="skills">Photoshop</span>
+<span class="skills">Excel</span>
+<span class="skills">PowerPoint</span>
+<span class="skills">Public Speaking</span>
+<span class="skills">Leadership</span>
+<span class="skills">Project Management</span>
+<span class="skills">Research</span>
+<span class="skills">Data Analysis</span>
+<span class="skills">Content Writing</span>
+<span class="skills">Social Media</span>
+<span class="skills">SEO</span>
+
                         </div>
+                        
                     </div>
                 </section>
 
@@ -656,12 +738,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div class="toggle-group">
                             <input type="radio" id="pt-individual" name="participation-type" value="individual">
                             <label for="pt-individual">Individual</label>
-                            
+
                             <input type="radio" id="pt-team" name="participation-type" value="team" checked>
                             <label for="pt-team">Team Participation</label>
                         </div>
-                    </div>
 
+                    </div>
+                    
                     <div class="form-group-inline" id="team-size-section">
                         <div class="form-group">
                             <label for="team-min">Set team size</label>
@@ -676,13 +759,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="form-group">
                         <label>Mode of Opportunity</label>
                         <div class="toggle-group">
-                            <input name="mode-online" type="radio" id="mode-online" name="mode" value="online">
+
+                            <input type="radio" id="mode-online" name="mode" value="online">
                             <label for="mode-online">Online</label>
-                            
-                            <input name="mode-offline" type="radio" id="mode-offline" name="mode" value="offline" checked>
+
+                            <input type="radio" id="mode-offline" name="mode" value="offline" checked>
                             <label for="mode-offline">Offline</label>
+
                         </div>
                     </div>
+
 
                     <div id="offline-section">
                         <div class="form-group">
@@ -698,11 +784,59 @@ document.addEventListener("DOMContentLoaded", function () {
                     </div>
                 </section>
 
+                <section class="form-section" style="padding-bottom: 10px;">
+                    <h2>Important Timelines</h2>
+                    <div class="form-group">
+                        <label for="opp-description">Registration Deadline</label>
+                        <div class="rich-text-editor">
+                            
+                            <input type="date" name="registrationDate" id="regDate">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="opp-description">Date of Commencement</label>
+                        <div class="rich-text-editor">
+                            
+                            <input type="date" name="commenceDate" id="comDate">
+                        </div>
+                    </div>
+                    
+                 
+
+                    
+                </section>
+
+                <section class="form-section" style="padding-bottom: 10px;">
+                    <h2>Organizer's Contact</h2>
+                    <div class="form-group" style="padding-top: 10px;">
+                        <label for="opp-title">Organiser's Name *</label>
+                        <input type="text" id="organName" placeholder="Enter Opportunity Title" name="organiserName">
+                    </div>
+                    <div class="form-group">
+                        <label for="opp-title">Organiser's Designation *</label>
+                        <input type="text" id="organDes" placeholder="Enter Opportunity Title" name="organiserDesignation">
+                    </div>
+                    <div class="form-group">
+                        <label for="opp-title">Organizer's Email *</label>
+                        <input type="text" id="organEma" placeholder="Enter Opportunity Title" name="organiserEmail">
+                    </div>
+                    <div class="form-group">
+                        <label for="opp-title">Organizer's Contact Number *</label>
+                        <input type="text" id="organNum" placeholder="Enter Opportunity Title" name="organiserNumber">
+                    </div>
+                     
+                 
+
+                    
+                </section>
+
                
                 
                 <div class="form-actions">
                    
-                    <button onclick="submit()" class="btn btn-primary">Publish</button>
+                   <button type="submit" class="btn btn-primary">Publish</button>
+
                 </div>
             </form>
         </main>
