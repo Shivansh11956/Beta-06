@@ -25,8 +25,7 @@
 
     <div class="layout">
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" style="">
             <div class="logo">EventUs</div>
 
             <ul>
@@ -34,16 +33,18 @@
                 <li>Explore Organizations</li>
                 <li>Subscriptions</li>
                 <li>Explore Categories</li>
-                <li>Hackathons</li>
-                <li>Networking Events</li>
                 <li>Groups</li>
                 <li>Bookmarks</li>
             </ul>
+
+            <ul>
+                <li>Set preferences</li>
+                <li onclick="window.location.href='/user/logout'">Logout</li>
+            </ul>
         </aside>
 
-        <!-- Main Content -->
         <main class="main">
-            <header class="topbar">
+            <header class="topbar" style="opacity: 0;">
                 <div></div>
                 <div class="right">
                     <span class="bell">🔔</span>
@@ -56,7 +57,6 @@
                 <p>Find workshops, hackathons, and networking opportunities</p>
             </section>
 
-            <!-- Filters -->
             <div class="filters">
                 <select id="categoryFilter">
                     <option>All Categories</option>
@@ -75,118 +75,71 @@
                 <button class="clear-btn" onclick="clearFilters()">Clear Filters</button>
             </div>
 
-            <!-- Event Cards Container -->
          
-            <div class="cards">
-                <div class="event-card">
-                <div class="event-banner">
-                    <img src="https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-69036a703f98c_whatsapp_image_2025-10-28_at_19.07.20.jpeg?d=120x120" class="event-logo" alt="Event Logo">
-                    <div class="event-tags">
-                        <span class="tag">Online</span>
-                        <span class="tag">Free</span>
-                    </div>
+            <div class="cards">   
+<% workshops.forEach(item => { %>
+
+    <div class="event-card">
+        <div class="event-banner">
+            <img src="<%= item.workshop.logo %>" class="event-logo" alt="Event Logo">
+
+            <div class="event-tags">
+                <span class="tag"><%= item.workshop.mode %></span>
+                <span class="tag"><%= item.workshop.participationType %></span>
+            </div>
+        </div>
+
+        <div class="event-content">
+            <h3 class="event-title"><%= item.workshop.workshopTitle %></h3>
+            <p class="event-org"><%= item.workshop.description %></p>
+
+            <div class="event-stats">
+                <div class="stat">
+
+                    <% if (item.workshop.participationType === "Team") { %>
+                        <i class="fa fa-users"></i> 
+                        <%= item.workshop.minSize %> - <%= item.workshop.maxSize %> Members
+                    <% } else { %>
+                        <i class="fa fa-user"></i> 1 Member
+                    <% } %>
+
                 </div>
 
-                        <div class="event-content">
-                            <h3 class="event-title">Disrupt the Ordinary</h3>
-                            <p class="event-org">Lal Bahadur Shastri Institute of Management...</p>
-
-                            <div class="event-stats">
-                                <div class="stat">
-                                    <i class="fa fa-users"></i> 4 Applied
-                                </div>
-                                <div class="stat">
-                                    <i class="fa fa-clock-o"></i> 8 days left
-                                </div>
-                            </div>
-
-                            <span class="event-arrow">↗</span>
-                        </div>
-            </div>
-            <div class="event-card">
-                <div class="event-banner">
-                    <img src="logo.png" class="event-logo" alt="Event Logo">
-                    <div class="event-tags">
-                        <span class="tag">Online</span>
-                        <span class="tag">Free</span>
-                    </div>
+                <div class="stat">
+                    <i class="fa-solid fa-clock"></i> 
+                    <%= Math.ceil((new Date(item.workshop.registrationDate) - new Date()) / (1000*60*60*24)) %> days left
                 </div>
-
-                        <div class="event-content">
-                            <h3 class="event-title">Disrupt the Ordinary</h3>
-                            <p class="event-org">Lal Bahadur Shastri Institute of Management...</p>
-
-                            <div class="event-stats">
-                                <div class="stat">
-                                    <i class="fa fa-users"></i> 4 Applied
-                                </div>
-                                <div class="stat">
-                                    <i class="fa fa-clock-o"></i> 8 days left
-                                </div>
-                            </div>
-
-                            <span class="event-arrow">↗</span>
-                        </div>
             </div>
-            <div class="event-card">
-                <div class="event-banner">
-                    <img src="logo.png" class="event-logo" alt="Event Logo">
-                    <div class="event-tags">
-                        <span class="tag">Online</span>
-                        <span class="tag">Free</span>
-                    </div>
+
+            <div class="event-stats" style="padding-top: 10px;">
+                <div class="stat">
+                    <i class="fa-solid fa-graduation-cap"></i> 
+                    <%= item.workshop.participationType %>
                 </div>
-
-                        <div class="event-content">
-                            <h3 class="event-title">Disrupt the Ordinary</h3>
-                            <p class="event-org">Lal Bahadur Shastri Institute of Management...</p>
-
-                            <div class="event-stats">
-                                <div class="stat">
-                                    <i class="fa fa-users"></i> 4 Applied
-                                </div>
-                                <div class="stat">
-                                    <i class="fa fa-clock-o"></i> 8 days left
-                                </div>
-                            </div>
-
-                            <span class="event-arrow">↗</span>
-                        </div>
             </div>
-            <div class="event-card">
-                <div class="event-banner">
-                    <img src="logo.png" class="event-logo" alt="Event Logo">
-                    <div class="event-tags">
-                        <span class="tag">Online</span>
-                        <span class="tag">Free</span>
-                    </div>
+
+            <div class="event-stats" style="padding-top: 10px;">
+                <div class="stat">
+                    <i class="fa-solid fa-marker"></i> 
+                    Match Score: <%= (item.score * 100).toFixed(1) %>%
                 </div>
-
-                        <div class="event-content">
-                            <h3 class="event-title">Disrupt the Ordinary</h3>
-                            <p class="event-org">Lal Bahadur Shastri Institute of Management...</p>
-
-                            <div class="event-stats">
-                                <div class="stat">
-                                    <i class="fa fa-users"></i> 4 Applied
-                                </div>
-                                <div class="stat">
-                                    <i class="fa fa-clock-o"></i> 8 days left
-                                </div>
-                            </div>
-
-                            <span class="event-arrow">↗</span>
-                        </div>
             </div>
-            </div>
-        
+
+            <span class="event-arrow">↗</span>
+        </div>
+    </div>
+    
+
+<% }) %>
+</div>
+
+       
 
         </main>
 
     </div>
 
     <script>
-        // Fake Event Data (Replace with API later)
 const events = [
     {
         category: "Hackathon",
@@ -230,7 +183,6 @@ const events = [
     }
 ];
 
-// Render Function
 function renderEvents(list) {
     const container = document.getElementById("eventsContainer");
     container.innerHTML = "";
@@ -260,7 +212,6 @@ function renderEvents(list) {
     });
 }
 
-// Filters
 function clearFilters() {
     document.getElementById("categoryFilter").selectedIndex = 0;
     document.getElementById("modeFilter").selectedIndex = 0;
@@ -280,19 +231,8 @@ document.getElementById("modeFilter").onchange = function () {
     renderEvents(filtered);
 };
 
-// Initial Render
 renderEvents(events);
-// const events = [
-//     {
-//         title: "Disrupt the Ordinary",
-//         institute: "Lal Bahadur Shastri Institute of Management",
-//         tags: ["Online", "Free"],
-//         applied: 4,
-//         daysLeft: 8,
-//         logo: "https://via.placeholder.com/100", 
-//         banner: "" 
-//     }
-// ];
+
 
 function loadCards() {
     const container = document.getElementById("cardContainer");

@@ -21,7 +21,7 @@
 
 </head>
 <style>
-    /* --- Global Setup & Variables --- */
+    
 :root {
     --primary-blue: #2A81E0;
     --light-blue-bg: #EAF3FE;
@@ -48,12 +48,12 @@ body {
     
 }
 
-/* --- Main Layout --- */
+
 .page-container {
     display: flex;
-    max-width: 1400px;    /* 1. Sets a maximum width */
+    max-width: 1400px;   
     min-height: 100vh;
-        /* 2. This is the part that centers it */
+    
     padding-left: 25%;
     background-color: var(--white);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -62,7 +62,6 @@ body {
     justify-content: center;
 }
 
-/* --- Sidebar & Stepper --- */
 .sidebar {
     flex: 0 0 300px;
     padding: 2.5rem;
@@ -96,13 +95,12 @@ body {
     position: relative;
 }
 
-/* Dotted line connector */
 .step:not(:last-child)::before {
     content: '';
     position: absolute;
     left: 14px;
     top: 32px;
-    bottom: -2.5rem; /* Matches margin-bottom */
+    bottom: -2.5rem; 
     width: 2px;
     border-left: 2px dashed var(--border-color);
     z-index: 1;
@@ -143,7 +141,6 @@ body {
     color: var(--primary-blue);
 }
 
-/* Support Box */
 .support-box {
     margin-top: 2rem;
     background-color: var(--page-bg);
@@ -165,7 +162,6 @@ body {
     font-weight: 500;
 }
 
-/* --- Main Form Content --- */
 .main-content {
     flex: 1;
     padding: 2.5rem 4rem;
@@ -183,7 +179,6 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
-/* Form Groups & Inputs */
 .form-group {
     margin-bottom: 1.5rem;
 }
@@ -248,9 +243,7 @@ select {
     margin-top: 0.5rem;
 }
 
-/* --- Specific Components --- */
 
-/* Logo Upload */
 input[type="file"]#logo-upload {
     display: none;
 }
@@ -265,7 +258,7 @@ input[type="file"]#logo-upload {
     height: 100px;
     border-radius: 1rem;
     background-color: #E0E0E0;
-    /* Placeholder for logo image */
+
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="%236C757D" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>');
     background-repeat: no-repeat;
     background-position: center;
@@ -275,7 +268,6 @@ input[type="file"]#logo-upload {
     font-weight: 500;
 }
 
-/* Rich Text Editor */
 .rich-text-editor .toolbar {
     padding: 8px 12px;
     background: var(--page-bg);
@@ -297,7 +289,6 @@ input[type="file"]#logo-upload {
     border-top-right-radius: 0;
 }
 
-/* Info Box */
 .info-box {
     background-color: #FEFCE8;
     border: 1px solid #FDE68A;
@@ -315,7 +306,6 @@ input[type="file"]#logo-upload {
     color: #422006;
 }
 
-/* Toggle Buttons (Radio/Checkbox) */
 .toggle-group {
     display: flex;
     flex-wrap: wrap;
@@ -345,7 +335,6 @@ input[type="file"]#logo-upload {
     color: var(--primary-blue);
 }
 
-/* Setting Card */
 .setting-card {
     display: flex;
     justify-content: space-between;
@@ -361,7 +350,6 @@ input[type="file"]#logo-upload {
     color: var(--text-light);
 }
 
-/* --- Buttons --- */
 .btn {
     padding: 10px 20px;
     border: none;
@@ -394,7 +382,7 @@ input[type="file"]#logo-upload {
     background-color: #f8faff;
 }
 
-/* Form Actions (Sticky Footer) */
+
 .form-actions {
     display: flex;
     justify-content: flex-end;
@@ -404,7 +392,7 @@ input[type="file"]#logo-upload {
     background-color: var(--white);
     position: sticky;
     bottom: 0;
-    margin: 0 -4rem -2.5rem; /* Extend to edges of main-content padding */
+    margin: 0 -4rem -2.5rem; 
     padding: 1.5rem 4rem;
 }
 .form-group button{
@@ -454,7 +442,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let skillsArr = [];
     const skillElements = document.querySelectorAll(".skills");
 
-    // ✅ SKILL CLICK HANDLER (INSIDE DOMContentLoaded)
     skillElements.forEach(skill => {
         skill.addEventListener("click", () => {
             
@@ -462,23 +449,22 @@ document.addEventListener("DOMContentLoaded", function () {
             const value = skill.textContent.trim();
 
             if (skill.classList.contains("selected")) {
-                // add to array
+             
                 if (!skillsArr.includes(value)) {
                     skillsArr.push(value);
                 }
             } else {
-                // remove from array
+             
                 skillsArr = skillsArr.filter(s => s !== value);
             }
 
-            console.log(skillsArr);  // ✅ check selected skills live
+            console.log(skillsArr);
         });
     });
 
     
 
     
-    /* ------------------- MODE TOGGLE ------------------- */
     const offlineSection = document.getElementById("offline-section");
     const modeToggles = document.querySelectorAll('input[name="mode"]');
 
@@ -490,7 +476,7 @@ document.addEventListener("DOMContentLoaded", function () {
     handleModeChange();
 
 
-    /* ------------------- PARTICIPATION TYPE ------------------- */
+   
     const teamSizeSection = document.getElementById("team-size-section");
     const participationToggles = document.querySelectorAll('input[name="participation-type"]');
 
@@ -502,15 +488,15 @@ document.addEventListener("DOMContentLoaded", function () {
     handleParticipationChange();
 
 
-    /* ------------------- FORM SUBMIT ------------------- */
+ 
     const form = document.querySelector("form");
 
     form.addEventListener("submit", (e) => {
-        e.preventDefault(); // Stop default refresh
+        e.preventDefault(); 
 
-        const formData = new FormData(form); // For file + normal fields
+        const formData = new FormData(form); 
 
-        // Append skills array manually
+     
         formData.delete("orgName");
         formData.delete("workshopTitle");
         formData.delete("url");
@@ -528,7 +514,6 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.delete('organiserNumber')
         formData.append("skills", JSON.stringify(skillsArr));
 
-        // Append custom values not inside form
         formData.append("workshopTitle", document.getElementById("opp-title").value);
         formData.append("orgName", document.getElementById("org-name").value);
         formData.append("url", document.getElementById("company-url").value);
@@ -560,12 +545,11 @@ document.addEventListener("DOMContentLoaded", function () {
     method: "POST",
     body: formData,
 })
-.then(res => res.json())   // ✅ Works now because backend returns JSON
+.then(res => res.json()) 
 .then(data => {
     console.log(data);
     alert("Workshop Published!");
 
-    // ✅ Redirect to success page
     window.location.href = "/host/workshop/completed";
 })
 .catch(err => console.error("Error:", err));
@@ -676,7 +660,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             Technologies Involved
                         </label>
                         <div class="skillbox">
-                            <!-- Interests -->
+                           
 <span class="skills">Artificial Intelligence</span>
 <span class="skills">Machine Learning</span>
 <span class="skills">Web Development</span>
@@ -736,10 +720,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="form-group">
                         <label>Participation Type</label>
                         <div class="toggle-group">
-                            <input type="radio" id="pt-individual" name="participation-type" value="individual">
+                            <input type="radio" id="pt-individual" name="participation-type" value="Individual">
                             <label for="pt-individual">Individual</label>
 
-                            <input type="radio" id="pt-team" name="participation-type" value="team" checked>
+                            <input type="radio" id="pt-team" name="participation-type" value="Team" checked>
                             <label for="pt-team">Team Participation</label>
                         </div>
 
@@ -760,10 +744,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         <label>Mode of Opportunity</label>
                         <div class="toggle-group">
 
-                            <input type="radio" id="mode-online" name="mode" value="online">
+                            <input type="radio" id="mode-online" name="mode" value="Online">
                             <label for="mode-online">Online</label>
 
-                            <input type="radio" id="mode-offline" name="mode" value="offline" checked>
+                            <input type="radio" id="mode-offline" name="mode" value="Offline" checked>
                             <label for="mode-offline">Offline</label>
 
                         </div>

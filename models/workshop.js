@@ -6,6 +6,8 @@ const workshopSchema = new mongoose.Schema({
     url: String,
     description: String,
     skills: [String],
+    tfidfVector: { type: [Number], default: [] },
+    embedding: { type: [Number], default: [] },
     participationType: String,
     mode: String,
     venue: String,
@@ -18,7 +20,7 @@ const workshopSchema = new mongoose.Schema({
     organiserName : String,
     organiserDesignation : String,
     organiserEmail : String,
-    organiserNumber : String 
+    organiserNumber : String
 });
 
 module.exports = mongoose.model("Workshop", workshopSchema);

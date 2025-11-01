@@ -11,7 +11,7 @@ body {
     font-family: "Inter", sans-serif;
 }
 
-/* SIDEBAR */
+
 .sidebar {
     width: 280px;
     background: #16305d;
@@ -81,14 +81,13 @@ body {
     margin-right: 10px;
 }
 
-/* MAIN SECTION */
 .main {
     flex: 1;
     margin-left: 280px;
     /* padding: 20px 40px; */
 }
 
-/* TOP NAV */
+
 .top-nav {
     display: flex;
     justify-content: space-between;
@@ -151,7 +150,6 @@ body {
     color: #777;
 }
 
-/* CARDS */
 .cards {
     display: grid;
     grid-template-columns: repeat(4, 0.6fr);
@@ -285,7 +283,7 @@ body {
     cursor: pointer;
 }
 
-/* Hidden by default */
+
 .dropdown-menu {
     display: none;
     background: white;
@@ -317,7 +315,6 @@ body {
     border-radius: 8px;
 }
 
-/* EXPERIENCE BOX */
 .experience-box {
     background: #fff7e3;
     padding: 20px;

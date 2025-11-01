@@ -23,8 +23,12 @@ body {
     top: 0;
     left: 0;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
-
+.sidebar ul:last-of-type {
+    margin-top: auto; 
+}
 .sidebar .logo {
     font-size: 22px;
     font-weight: bold;
@@ -45,7 +49,7 @@ body {
     background: #324a5f;
 }
 
-/* Main Section */
+
 .main {
     flex: 1;
     padding: 20px 40px;
@@ -112,22 +116,29 @@ select, .clear-btn {
     width: 290px;
     background: white;
     border-radius: 15px;
-    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    /* box-shadow: 0 3px 15px rgba(0,0,0,0.1); */
     padding-bottom: 15px;
+    border: 0.5px solid rgba(146, 146, 146, 0.266);
     overflow: hidden;
     position: relative;
     font-family: 'Inter', sans-serif;
     cursor: pointer;
 }
+.event-card:hover{
+    border: 0.5px solid black;
+    transition: 0.6s;
+}
 
 .event-banner {
-    
+    background-image: url('	https://d8it4huxumps7.cloudfront.net/uploads/images/6772874a2fda2_bg1.png?d=504x160');
     height: 110px;
+    background-position: center;
+  background-size: auto; 
+  background-repeat: no-repeat;
     position: relative;
     border-radius: 15px 15px 0 0;
 }
 
-/* Category Tags */
 .event-tags {
     position: absolute;
     top: 10px;
@@ -142,7 +153,7 @@ select, .clear-btn {
     font-size: 12px;
 }
 
-/* Event Logo */
+
 .event-logo {
     width: 65px;
     height: 65px;
@@ -176,7 +187,6 @@ select, .clear-btn {
     text-overflow: ellipsis;
 }
 
-/* Stats Section */
 .event-stats {
     display: flex;
     gap: 20px;
@@ -188,7 +198,7 @@ select, .clear-btn {
     margin-right: 4px;
 }
 
-/* Top Right Arrow */
+
 .event-arrow {
     position: absolute;
     right: 20px;
