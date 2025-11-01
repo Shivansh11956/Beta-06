@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 mongoose.connect(`mongodb://127.0.0.1:27017/beta_06`)
 const workshopSchema = new mongoose.Schema({
     orgName: String,
+    email : String,
     workshopTitle: String,
     url: String,
     description: String,
