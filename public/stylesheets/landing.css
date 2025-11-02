@@ -98,7 +98,9 @@ body {
     display: inline-block;
     font-size: 17px;
 }
-
+.btn-secondary{
+    border: none;
+}
 .btn-primary {
     background: #233a55;
     color: white;

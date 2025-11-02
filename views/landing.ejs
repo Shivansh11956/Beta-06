@@ -23,8 +23,8 @@
             <div class="nav-links">
                 <!-- <a class = "btn-secondary" href="#features">Features</a>
                 <a class = "btn-secondary" href="#about">About</a> -->
-                <button class="btn-secondary" onclick="window.location.href='/features'" style="border: none;">Features</button>
-                <button class="btn-secondary" onclick="window.location.href='/about'" style="border: none;">About</button>
+                <button class="btn-secondary" onclick="scrollToSection('features')">Features</button>
+                <button class="btn-secondary" onclick="scrollToSection('stats')">About</button>
 
                 <div class="auth-buttons">
                     <button class="btn-secondary" onclick="window.location.href='/user/login'" style="border: none;">Login as User</button>
@@ -118,7 +118,7 @@
     </section>
 
     <!-- Stats Section -->
-    <section class="stats">
+    <section class="stats" id="stats">
         <p class = "Impact">Our Impact</p>
         <div class="stats-container">
             <div class="stat-card">
@@ -479,6 +479,20 @@ class ReviewSlider {
 document.addEventListener('DOMContentLoaded', function() {
     new ReviewSlider();
 });
+
+function scrollToSection(id) {
+    const target = document.getElementById(id);
+    if (!target) return;
+
+    const y = target.getBoundingClientRect().top + window.pageYOffset - 90;
+
+    window.scrollTo({
+        top: y,
+        behavior: "smooth"
+    });
+}
+
+
     </script>
 </body>
 </html>

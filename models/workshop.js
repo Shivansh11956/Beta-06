@@ -21,7 +21,10 @@ const workshopSchema = new mongoose.Schema({
     organiserName : String,
     organiserDesignation : String,
     organiserEmail : String,
-    organiserNumber : String
+    organiserNumber : String,
+    registeredUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    embedding: { type: [Number], default: [] }
+
 });
 
 module.exports = mongoose.model("Workshop", workshopSchema);

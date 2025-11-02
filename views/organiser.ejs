@@ -62,7 +62,7 @@
                 <div class="card">
                     <section class="subcard">
                         <div class="subcard1">
-                            <div class="num">0</div>
+                            <div class="num" id="numwork">0</div>
                             <div class="label">Active Workshops</div>
                         </div>
                         <div class="subcard2">
@@ -70,8 +70,8 @@
                         </div>
                     </section>
                     <section class="subcard22">
-                        <span><p>Total</p></span>
-                        <span>Registrations</span>
+                        <span><p id="numtot">Total : </p></span>
+                        <span id="numreg">Registrations : </span>
                     </section>
                     
                 </div>
@@ -167,7 +167,24 @@
         </section>
         </section>
        
-        
+        <script>
+            fetch("/api/host/workshops")
+            .then(res => res.json())
+            .then(data => {
+                if (!data || !data.workshops) {
+                    console.error("No workshops returned:", data);
+                    return;
+                }
+
+                const count = data.workshops.length;
+                document.getElementById("numwork").textContent = count;
+                document.getElementById("numtot").innerHTML = `Total : ${data.workshops.length}`
+                document.getElementById('numreg').innerHTML = `Registrations : ${data.workshops}`
+            })
+            .catch(err => console.error("Fetch error:", err));
+
+
+        </script>
 
       
         

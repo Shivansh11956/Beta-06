@@ -5,20 +5,25 @@ const multer = require("multer");
 let bcrypt = require('bcrypt')
 let jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-
-const { toVector, cosine } = require("./utils/vectorUtils");
-
+require('dotenv').config();
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// console.log("Gemini KEY:", process.env.GEMINI_API_KEY);
+const { calculateUserEventSimilarity } = require("./utils/similarityMatrix");
 const Workshop = require('./models/workshop')
 const hackathon = require('./models/hackathon');
 const userModel = require('./models/user')
-const orgModel = require('./models/organization')
+const orgModel = require('./models/organization');
+const Seminar = require('./models/seminar')
 
 app.set('view engine','ejs');
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(express.static(path.join(__dirname,'public')))
 app.use(cookieParser())
-require('dotenv').config();
+app.use("/uploads", express.static("uploads"));
+
+
 
 
 const storage = multer.diskStorage({
@@ -62,15 +67,50 @@ const isLogged2 = (req, res, next) => {
 
 app.use('/uploads', express.static('uploads'));
 app.get('/organiser',(req,res) => {
+    
     res.render("organiser")
 })
-app.get('/workshop',(req,res)=>{
+async function getEmbedding(text) {
+    try {
+        const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+
+        const result = await model.embedContent(text);
+        return result.embedding.values; // returns vector array
+    } 
+    catch (err) {
+        console.error("Embedding Error:", err);
+        return Array(768).fill(0); // fallback vector
+    }
+}
+function cosineSimilarity(a, b) {
+    let dot = 0, na = 0, nb = 0;
+    for (let i = 0; i < a.length; i++) {
+        dot += a[i] * b[i];
+        na += a[i] * a[i];
+        nb += b[i] * b[i];
+    }
+    return dot / (Math.sqrt(na) * Math.sqrt(nb));
+}
+
+app.get("/api/host/workshops", isLogged2, async (req, res) => {
+    try {
+        const workshops = await Workshop.find({ email: req.user.email });
+        res.json({ success: true, workshops });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
+
+app.get('/workshop',isLogged2,(req,res)=>{
     res.render('workshop')
 })
-app.get('/host/workshop',(req,res)=>{
+app.get('/host/workshop',isLogged2,(req,res)=>{
     res.render('host_offline_workshop')
 })
 app.post('/host/workshop', isLogged2, upload.single("logo"), async (req, res) => {
+    
     try {
         const token = req.cookies.org_token;
 
@@ -79,6 +119,15 @@ app.post('/host/workshop', isLogged2, upload.single("logo"), async (req, res) =>
         const orgEmail = decoded.email;  
 
         const skillsArr = JSON.parse(req.body.skills || "[]");
+        const logoPath = req.file.path.replace(/\\/g, "/");
+        const combinedText = `
+            ${req.body.workshopTitle}
+            ${req.body.description}
+            ${skillsArr.join(" ")}
+            ${req.body.mode}
+            ${req.body.location}
+        `;
+        const embedding = await getEmbedding(combinedText);
 
         const workshop = new Workshop({
             email: orgEmail,    
@@ -93,13 +142,14 @@ app.post('/host/workshop', isLogged2, upload.single("logo"), async (req, res) =>
             location: req.body.location,
             minSize: req.body.minSize,
             maxSize: req.body.maxSize,
-            logo: req.file ? req.file.path : null,
+            logo:  logoPath ,
             registrationDate: req.body.registrationDate,
             commenceDate: req.body.commenceDate,
             organiserName: req.body.organiserName,
             organiserDesignation: req.body.organiserDesignation,
             organiserEmail: req.body.organiserEmail,
-            organiserNumber: req.body.organiserNumber
+            organiserNumber: req.body.organiserNumber,
+            embedding : embedding
         });
 
         await workshop.save();
@@ -198,17 +248,17 @@ app.post('/organisation/login-account',async (req,res)=>{
 
 
 
-app.get('/host/workshop/completed',(req,res)=>{
+app.get('/host/workshop/completed',isLogged2,(req,res)=>{
     res.render('host_workshop_complete')
 })
 
-app.get('/hackathon',(req,res)=>{
+app.get('/hackathon',isLogged2,(req,res)=>{
     res.render('hackathon')
 })
-app.get('/host/hackathon',(req,res)=>{
+app.get('/host/hackathon',isLogged2,(req,res)=>{
     res.render('host_hackathon')
 })
-app.post('/host/hackathon', upload.single("logo"),async (req, res) => {
+app.post('/host/hackathon',isLogged2, upload.single("logo"),async (req, res) => {
 
     try {
         const skillsArr = JSON.parse(req.body.skills || "[]");
@@ -252,33 +302,49 @@ app.post('/host/hackathon', upload.single("logo"),async (req, res) => {
     }
 });
 
-app.get('/host/hackathon/completed',(req,res)=>{
+app.get('/host/hackathon/completed',isLogged2,(req,res)=>{
     res.render("host_hackathon_completed")
 })
 app.get('/foryou', isLogged, async (req, res) => {
     const user = await userModel.findOne({ email: req.user.email });
     if (!user) return res.send("User not found");
 
-    const userVector = toVector(user.interests || []);
-    console.log("User interests:", user.interests);
-
     const workshops = await Workshop.find();
-
+    
     const scored = workshops.map(w => {
-        const workshopVector = toVector(w.skills || []);
+        const score = calculateUserEventSimilarity(user.interests || [], w.skills || []);
         return {
             workshop: w,
-            score: cosine(userVector, workshopVector)
+            score: score
         };
     });
 
-    const threshold = 0.40;
-    const filtered = scored.filter(item => Number(item.score) >= threshold);
-
-    const sorted = filtered.sort((a, b) => b.score - a.score);
-
+    const sorted = scored.sort((a, b) => b.score - a.score);
     res.render("foryou", { workshops: sorted });
 });
+
+// app.get('/foryou', isLogged, async (req, res) => {
+//     const user = await userModel.findOne({ email: req.user.email });
+//     if (!user) return res.send("User not found");
+
+
+//     const workshops = await Workshop.find();
+
+//     const scored = workshops.map(w => {
+//         const workshopVector = toVector(w.skills || []);
+//         return {
+//             workshop: w,
+//             score: cosine(userVector, workshopVector)
+//         };
+//     });
+
+//     const threshold = 0.00;
+//     const filtered = scored.filter(item => Number(item.score) >= threshold);
+
+//     const sorted = filtered.sort((a, b) => b.score - a.score);
+
+//     res.render("foryou", { workshops: sorted });
+// });
 
 app.get('/',(req,res)=>{
     res.render('landing')
@@ -333,7 +399,7 @@ app.get('/user/logout',(req,res)=>{
     });
 
 
-    app.get("/api/my-workshops", isLogged2, async (req, res) => {
+app.get("/api/my-workshops", isLogged2, async (req, res) => {
     try {
         const workshops = await Workshop.find({ email: req.user.email });
         res.json({ success: true, workshops });
@@ -342,7 +408,173 @@ app.get('/user/logout',(req,res)=>{
         res.status(500).json({ success: false, message: "Error fetching workshops" });
     }
 });
+app.get("/workshop/:id", isLogged, async (req, res) => {
+    try {
+        const workshop = await Workshop.findById(req.params.id);
+        if (!workshop) return res.status(404).send("Workshop not found");
+
+        const user = await userModel.findOne({ email: req.user.email });
+        if (!user) return res.status(404).send("User not found");
+
+        res.render("event_details", { workshop, user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server error");
+    }
+});
+
+app.get('/bookmarks', isLogged, async (req, res) => {
+    try {
+        // 1. Get current user
+        const user = await userModel
+            .findOne({ email: req.user.email })
+            .populate("bookmarkedWorkshops")       // ✅ fetch workshop details
+            .lean();
+
+        if (!user) {
+            return res.redirect('/login');
+        }
+
+        // 2. Array of bookmarked workshops
+        const bookmarks = user.bookmarkedWorkshops || [];
+
+        console.log("User Bookmarks:", bookmarks);
+
+        // 3. Render page with bookmarks
+        res.render("bookmarks", { bookmarks });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Server error");
+    }
+});
+
+
+app.post("/register/:id", isLogged, async (req, res) => {
+    try {
+        const workshopId = req.params.id;
+
+        // ✅ Get user using email from JWT
+        const user = await userModel.findOne({ email: req.user.email });
+        if (!user) return res.status(404).send("User not found");
+
+        const workshop = await Workshop.findById(workshopId);
+        if (!workshop) return res.status(404).send("Workshop not found");
+
+        // ✅ Add user to workshop registered list (avoid duplicates)
+        if (!workshop.registeredUsers.includes(user._id)) {
+            workshop.registeredUsers.push(user._id);
+            await workshop.save();
+        }
+
+        
+        if (!user.registeredWorkshops.includes(workshopId)) {
+            user.registeredWorkshops.push(workshopId);
+            await user.save();
+        }
+
+        res.redirect(`/workshop/${workshopId}`);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error registering");
+    }
+});
+
+
+app.post("/bookmark/:id", isLogged, async (req, res) => {
+    try {
+        const workshopId = req.params.id;
+
+        const user = await userModel.findOne({ email: req.user.email });
+        if (!user) return res.status(404).send("User not found");
+
+        // ✅ Add bookmark only if not already present
+        if (!user.bookmarkedWorkshops.includes(workshopId)) {
+            user.bookmarkedWorkshops.push(workshopId);
+            await user.save();
+        }
+
+        res.redirect(`/workshop/${workshopId}`);
+    } 
+    catch (err) {
+        console.error(err);
+        res.status(500).send("Bookmark failed");
+    }
+});
+
+
+
 
 app.listen(3000,()=>{
     console.log('running');
 });
+
+
+app.get('/seminar',(req,res)=>{
+    res.render('seminar')
+})
+app.get('/host/seminar',(req,res)=>{
+    res.render('host_seminar')
+})
+app.post('/host/seminar', isLogged2, upload.single("logo"), async (req, res) => {
+    try {
+        const token = req.cookies.org_token;
+        const decoded = jwt.verify(token, "shhh");
+        const orgEmail = decoded.email;
+
+        const skillsArr = JSON.parse(req.body.skills || "[]");
+        const logoPath = req.file.path.replace(/\\/g, "/");
+
+        const combinedText = `
+            ${req.body.seminarTitle}
+            ${req.body.description}
+            ${skillsArr.join(" ")}
+            ${req.body.mode}
+            ${req.body.location}
+        `;
+
+        const embedding = await getEmbedding(combinedText);
+
+        const newSeminar = new Seminar({
+            email: orgEmail,
+            orgName: req.body.orgName,
+            seminarTitle: req.body.seminarTitle,
+            url: req.body.url,
+            description: req.body.description,
+            skills: skillsArr,
+            participationType: req.body.participationType,
+            mode: req.body.mode,
+            venue: req.body.venue,
+            location: req.body.location,
+            minSize: req.body.minSize,
+            maxSize: req.body.maxSize,
+            logo: logoPath,
+            registrationDate: req.body.registrationDate,
+            commenceDate: req.body.commenceDate,
+            organiserName: req.body.organiserName,
+            organiserDesignation: req.body.organiserDesignation,
+            organiserEmail: req.body.organiserEmail,
+            organiserNumber: req.body.organiserNumber,
+            embedding: embedding
+        });
+
+        await newSeminar.save();
+
+        return res.json({
+            success: true,
+            message: "Seminar saved",
+            fields: req.body,
+            file: req.file
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, error: "Something went wrong" });
+    }
+});
+
+
+app.get('/host/seminar/completed',(req,res)=>{
+
+})
