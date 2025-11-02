@@ -75,11 +75,11 @@ async function getEmbedding(text) {
         const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
 
         const result = await model.embedContent(text);
-        return result.embedding.values; // returns vector array
+        return result.embedding.values; 
     } 
     catch (err) {
         console.error("Embedding Error:", err);
-        return Array(768).fill(0); // fallback vector
+        return Array(768).fill(0);
     }
 }
 function cosineSimilarity(a, b) {
@@ -576,5 +576,5 @@ app.post('/host/seminar', isLogged2, upload.single("logo"), async (req, res) => 
 
 
 app.get('/host/seminar/completed',(req,res)=>{
-
+    res.render('host_seminar_complete')
 })

@@ -14,7 +14,7 @@ function generateSimilarityMatrix() {
         specificScores.set(key, score);
     };
 
-    // High similarity pairs
+   
     setScore("Artificial Intelligence", "Machine Learning", 0.9);
     setScore("Artificial Intelligence", "Data Science", 0.8);
     setScore("Machine Learning", "Data Science", 0.85);
