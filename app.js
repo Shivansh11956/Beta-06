@@ -23,7 +23,11 @@ app.use(express.static(path.join(__dirname,'public')))
 app.use(cookieParser())
 app.use("/uploads", express.static("uploads"));
 
+const mongoose = require("mongoose");
 
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch(err => console.error("❌ MongoDB Error:", err));
 
 
 const storage = multer.diskStorage({
