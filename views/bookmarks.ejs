@@ -63,7 +63,7 @@ body {
     background: #324a5f;
 }
 
-/* Main Section */
+
 .main {
     flex: 1;
     padding: 20px 40px;
@@ -145,7 +145,6 @@ select, .clear-btn {
     border-radius: 15px 15px 0 0;
 }
 
-/* Category Tags */
 .event-tags {
     position: absolute;
     top: 10px;
@@ -160,7 +159,6 @@ select, .clear-btn {
     font-size: 12px;
 }
 
-/* Event Logo */
 .event-logo {
     width: 65px;
     height: 65px;
@@ -194,7 +192,7 @@ select, .clear-btn {
     text-overflow: ellipsis;
 }
 
-/* Stats Section */
+
 .event-stats {
     display: flex;
     gap: 20px;
@@ -206,7 +204,7 @@ select, .clear-btn {
     margin-right: 4px;
 }
 
-/* Top Right Arrow */
+
 .event-arrow {
     position: absolute;
     right: 20px;
@@ -441,7 +439,7 @@ select, .clear-btn {
     cursor: pointer;
 }
 
-/* Empty state */
+
 .bookmark-empty {
     text-align: center;
     padding: 60px 20px;
@@ -465,7 +463,7 @@ select, .clear-btn {
     line-height: 1.5;
 }
 
-/* Responsive design */
+
 @media (max-width: 768px) {
     .bookmark-cards {
         grid-template-columns: 1fr;
@@ -500,15 +498,16 @@ select, .clear-btn {
             <div class="logo">EventUs</div>
             <ul>
                 <li onclick="window.location.href='/foryou'">For You</li>
-                <li>Explore Organizations</li>
-                <li>Subscriptions</li>
-                <li>Explore Categories</li>
+                <li onclick="window.location.href='/explore'">Explore Organizations</li>
+                <!-- <li>Subscriptions</li> -->
+                <!-- <li>Explore Categories</li> -->
                 
-                <li>Groups</li>
+                <!-- <li>Groups</li> -->
                 <li class="active">Bookmarks</li>
+                <li onclick="window.location.href='/set_preferences'">Set preferences</li>
             </ul>
             <ul>
-                <li onclick="window.location.href='/set_preferences'">Set preferences</li>
+                
                 <li onclick="window.location.href='/user/logout'">Logout</li>
             </ul>
         </aside>

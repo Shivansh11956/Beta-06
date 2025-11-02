@@ -15,7 +15,7 @@ const hackathon = require('./models/hackathon');
 const userModel = require('./models/user')
 const orgModel = require('./models/organization');
 const Seminar = require('./models/seminar')
-
+const Networking = require('./models/networking')
 app.set('view engine','ejs');
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
@@ -309,8 +309,13 @@ app.get('/foryou', isLogged, async (req, res) => {
     const user = await userModel.findOne({ email: req.user.email });
     if (!user) return res.send("User not found");
 
-    const workshops = await Workshop.find();
-    
+    let workshops = [
+        ...await Workshop.find(),
+        ...await Seminar.find(),
+        ...await hackathon.find(),
+        ...await Networking.find()
+    ];
+
     const scored = workshops.map(w => {
         const score = calculateUserEventSimilarity(user.interests || [], w.skills || []);
         return {
@@ -320,31 +325,13 @@ app.get('/foryou', isLogged, async (req, res) => {
     });
 
     const sorted = scored.sort((a, b) => b.score - a.score);
+
     res.render("foryou", { workshops: sorted });
 });
 
-// app.get('/foryou', isLogged, async (req, res) => {
-//     const user = await userModel.findOne({ email: req.user.email });
-//     if (!user) return res.send("User not found");
 
 
-//     const workshops = await Workshop.find();
 
-//     const scored = workshops.map(w => {
-//         const workshopVector = toVector(w.skills || []);
-//         return {
-//             workshop: w,
-//             score: cosine(userVector, workshopVector)
-//         };
-//     });
-
-//     const threshold = 0.00;
-//     const filtered = scored.filter(item => Number(item.score) >= threshold);
-
-//     const sorted = filtered.sort((a, b) => b.score - a.score);
-
-//     res.render("foryou", { workshops: sorted });
-// });
 
 app.get('/',(req,res)=>{
     res.render('landing')
@@ -410,8 +397,12 @@ app.get("/api/my-workshops", isLogged2, async (req, res) => {
 });
 app.get("/workshop/:id", isLogged, async (req, res) => {
     try {
-        const workshop = await Workshop.findById(req.params.id);
-        if (!workshop) return res.status(404).send("Workshop not found");
+        let workshop = await Workshop.findById(req.params.id);
+        
+        if (!workshop){
+            workshop = await Seminar.findById(req.params.id)
+            
+        }
 
         const user = await userModel.findOne({ email: req.user.email });
         if (!user) return res.status(404).send("User not found");
@@ -425,22 +416,20 @@ app.get("/workshop/:id", isLogged, async (req, res) => {
 
 app.get('/bookmarks', isLogged, async (req, res) => {
     try {
-        // 1. Get current user
+     
         const user = await userModel
             .findOne({ email: req.user.email })
-            .populate("bookmarkedWorkshops")       // ✅ fetch workshop details
+            .populate("bookmarkedWorkshops")     
             .lean();
 
         if (!user) {
             return res.redirect('/login');
         }
 
-        // 2. Array of bookmarked workshops
         const bookmarks = user.bookmarkedWorkshops || [];
 
         console.log("User Bookmarks:", bookmarks);
 
-        // 3. Render page with bookmarks
         res.render("bookmarks", { bookmarks });
 
     } catch (err) {
@@ -454,14 +443,14 @@ app.post("/register/:id", isLogged, async (req, res) => {
     try {
         const workshopId = req.params.id;
 
-        // ✅ Get user using email from JWT
+     
         const user = await userModel.findOne({ email: req.user.email });
         if (!user) return res.status(404).send("User not found");
 
         const workshop = await Workshop.findById(workshopId);
         if (!workshop) return res.status(404).send("Workshop not found");
 
-        // ✅ Add user to workshop registered list (avoid duplicates)
+       
         if (!workshop.registeredUsers.includes(user._id)) {
             workshop.registeredUsers.push(user._id);
             await workshop.save();
@@ -514,6 +503,7 @@ app.listen(3000,()=>{
 app.get('/seminar',(req,res)=>{
     res.render('seminar')
 })
+
 app.get('/host/seminar',(req,res)=>{
     res.render('host_seminar')
 })
@@ -578,3 +568,100 @@ app.post('/host/seminar', isLogged2, upload.single("logo"), async (req, res) => 
 app.get('/host/seminar/completed',(req,res)=>{
     res.render('host_seminar_complete')
 })
+
+///
+app.get("/api/host/workshops", isLogged2, async (req, res) => {
+    try {
+        const workshops = await Workshop.find({ email: req.user.email });
+        res.json({ success: true, workshops });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
+
+
+
+app.get('/networking',(req,res)=>{
+    res.render('networking')
+})
+
+app.get('/host/networking',(req,res)=>{
+    res.render('host_networking')
+})
+app.post('/host/networking', isLogged2, upload.single("logo"), async (req, res) => {
+    try {
+        const token = req.cookies.org_token;
+        const decoded = jwt.verify(token, "shhh");
+        const orgEmail = decoded.email;
+
+        const skillsArr = JSON.parse(req.body.skills || "[]");
+        const logoPath = req.file.path.replace(/\\/g, "/");
+
+        const combinedText = `
+            ${req.body.networkingTitle}
+            ${req.body.description}
+            ${skillsArr.join(" ")}
+            ${req.body.mode}
+            ${req.body.location}
+        `;
+
+        const embedding = await getEmbedding(combinedText);
+
+        const newNetworking = new Networking({
+            email: orgEmail,
+            orgName: req.body.orgName,
+            networkingTitle: req.body.networkingTitle,
+            url: req.body.url,
+            description: req.body.description,
+            skills: skillsArr,
+            participationType: req.body.participationType,
+            mode: req.body.mode,
+            venue: req.body.venue,
+            location: req.body.location,
+            minSize: req.body.minSize,
+            maxSize: req.body.maxSize,
+            logo: logoPath,
+            registrationDate: req.body.registrationDate,
+            commenceDate: req.body.commenceDate,
+            organiserName: req.body.organiserName,
+            organiserDesignation: req.body.organiserDesignation,
+            organiserEmail: req.body.organiserEmail,
+            organiserNumber: req.body.organiserNumber,
+            embedding: embedding
+        });
+
+        await newNetworking.save();
+
+        return res.json({
+            success: true,
+            message: "Networking saved",
+            fields: req.body,
+            file: req.file
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, error: "Something went wrong" });
+    }
+});
+
+
+app.get('/host/networking/completed',(req,res)=>{
+    res.render('host_network_complete')
+})
+
+app.get('/explore',(req,res)=>{
+    res.render('explore')
+})
+app.get("/api/host/networking", isLogged2, async (req, res) => {
+    try {
+        const events = await Networking.find({ email: req.user.email });
+        res.json({ success: true, events });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});

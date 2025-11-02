@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post an Opportunity - Unstop</title>
-  
+    <!-- <link rel="stylesheet" href="style.css"> -->
      <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -21,7 +21,7 @@
 
 </head>
 <style>
-  
+ 
 :root {
     --primary-blue: #2A81E0;
     --light-blue-bg: #EAF3FE;
@@ -47,11 +47,11 @@ body {
     line-height: 1.5;
     
 }
-
 .page-container {
     display: flex;
-    max-width: 1400px;    
+    max-width: 1400px;  
     min-height: 100vh;
+      
     padding-left: 25%;
     background-color: var(--white);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -77,7 +77,8 @@ body {
     font-weight: 700;
     color: var(--primary-blue);
     margin-bottom: 3rem;
-   
+    /* margin-left: 3rem; */
+    /* padding-left: 10px; */
 }
 
 .stepper {
@@ -212,7 +213,8 @@ input[type="number"]:focus,
 select:focus,
 textarea:focus {
     outline: none;
-   
+    /* border-color: var(--primary-blue); */
+    /* box-shadow: 0 0 0 3px var(--light-blue-bg); */
 }
 
 select {
@@ -239,7 +241,6 @@ select {
     margin-top: 0.5rem;
 }
 
-
 input[type="file"]#logo-upload {
     display: none;
 }
@@ -254,6 +255,7 @@ input[type="file"]#logo-upload {
     height: 100px;
     border-radius: 1rem;
     background-color: #E0E0E0;
+
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="%236C757D" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>');
     background-repeat: no-repeat;
     background-position: center;
@@ -300,7 +302,6 @@ input[type="file"]#logo-upload {
 .info-box strong {
     color: #422006;
 }
-
 .toggle-group {
     display: flex;
     flex-wrap: wrap;
@@ -377,6 +378,7 @@ input[type="file"]#logo-upload {
     background-color: #f8faff;
 }
 
+
 .form-actions {
     display: flex;
     justify-content: flex-end;
@@ -442,12 +444,15 @@ input[type="file"]#logo-upload {
     border-radius: 7px;
 
 }
+
 </style>
 <script>
+
 
 </script>
 
 <body>
+    <!-- <h1 style="text-align: center;">Post an Opportunity</h1> -->
     <div class="page-container">
         <aside class="sidebar">
             <div class="logo">
@@ -482,11 +487,11 @@ input[type="file"]#logo-upload {
 
         <main class="main-content">
             <h2>You're all set!</h2>
-            <p>Your hackathon has been created and is now live.</p>
+            <p>Your event has been created and is now live.</p>
 
             <div>
                 <button class="button1">Go to Dashboard</button>
-                <button class="button2">View Hackathon</button>
+                <button class="button2">View Event</button>
             </div>
         </main>
     </div>

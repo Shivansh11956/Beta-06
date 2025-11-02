@@ -30,15 +30,16 @@
 
             <ul>
                 <li class="active">For You</li>
-                <li>Explore Organizations</li>
-                <li>Subscriptions</li>
-                <li>Explore Categories</li>
-                <li>Groups</li>
+                <li onclick="window.location.href='/explore'">Explore Organizations</li>
+                <!-- <li>Subscriptions</li> -->
+                <!-- <li>Explore Categories</li> -->
+                <!-- <li>Groups</li> -->
                 <li onclick="window.location.href='/bookmarks'">Bookmarks</li>
+                <li onclick="window.location.href='/set_preferences'">Set preferences</li>
             </ul>
 
             <ul>
-                <li onclick="window.location.href='/set_preferences'">Set preferences</li>
+                
                 <li onclick="window.location.href='/user/logout'">Logout</li>
             </ul>
         </aside>
@@ -55,9 +56,9 @@
             <section class="page-title">
                 <h2>All Events</h2>
                 <p>Find workshops, hackathons, and networking opportunities</p>
-            </section>
+            </section >
 
-            <div class="filters">
+            <!-- <div class="filters">
                 <select id="categoryFilter" disabled>
                     <option>All Categories</option>
                     <option>Workshop</option>
@@ -73,10 +74,10 @@
                 </select>
 
                 <button class="clear-btn" onclick="clearFilters()">Clear Filters</button>
-            </div>
+            </div> -->
 
          
-            <div class="cards">  
+            <div class="cards" style="margin-top: 15px;">  
                 <!-- <% if (workshops.length === 0) { %>
    <p>No recommended workshops based on your interests.</p>
 <% } %>  -->
