@@ -329,7 +329,7 @@ app.get('/foryou', isLogged, async (req, res) => {
     });
 
     const sorted = scored.sort((a, b) => b.score - a.score);
-
+    
     res.render("foryou", { workshops: sorted });
 });
 
